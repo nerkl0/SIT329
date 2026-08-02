@@ -1,5 +1,15 @@
 #include "GPIO.h"
-#include <sam.h>
+
+const uint32_t MODE_CYCLE = 2000;
+const uint32_t TWINKLE_FREQ = MODE_CYCLE / 5;
+const uint32_t STARFALL_FREQ = TWINKLE_FREQ * 10;
+const uint32_t DEMO_CYCLE = 5000;
+bool lightState = false;
+uint32_t lastCycle = 0; 
+uint32_t lastDemo = 0; 
+
+enum { START, INVERT, TWINKLE, STARFALL } DemoMode;
+int mode = START;
 
 GPIO_Pin leds[] = {
   { PORT_A, 6, GPIO_OUTPUT }, // D7
@@ -11,14 +21,15 @@ GPIO_Pin leds[] = {
 };
 
 const int LED_LENGTH = sizeof(leds)/sizeof(leds[0]);
+const int initial[] = { HIGH, LOW, LOW, HIGH, HIGH, LOW };
 
 Pin_State state[] = {
-  {&leds[0], HIGH},
-  {&leds[1], LOW},
-  {&leds[2], LOW},
-  {&leds[3], HIGH},
-  {&leds[4], HIGH},
-  {&leds[5], LOW},
+  {&leds[0], initial[0]},
+  {&leds[1], initial[1]},
+  {&leds[2], initial[2]},
+  {&leds[3], initial[3]},
+  {&leds[4], initial[4]},
+  {&leds[5], initial[5]},
 };
 
 void invertLights(){
@@ -27,24 +38,50 @@ void invertLights(){
   }
 }
 
-void alternateDisplay(){
-  invertLights(); 
-  Display_GPIO(state, LED_LENGTH);
+void resetState(){
+  for (int i = 0; i < LED_LENGTH; i++){
+    state[i].state = initial[i];
+  }
+}
+
+void toggleAll(bool power){
+  for (int i = 0; i < LED_LENGTH; i++){
+    state[i].state = power;
+  }
+}
+
+void setMode(uint32_t freq){
+  if (millis() - lastCycle >= (freq / 2)){
+    lastCycle = millis();
+    lightState = !lightState;
+    toggleAll(lightState);
+  }
 }
 
 void setup() {
   Serial.begin(9600);
-  
+  while(!Serial);
+
   if (!SetupPort_GPIO(leds, LED_LENGTH)) {
     Serial.println("Error configuring LED pins");
     Serial.flush();
     while (1); // don't let program intiate 
   }
-
   Display_GPIO(state, LED_LENGTH);
 }
 
 void loop() {
-  delay(1000);
-  alternateDisplay();
+
+
+  switch(mode){
+    case START:
+      Serial.println("Starting"); break;
+    case INVERT:
+      Serial.println("Invert"); break;
+    case TWINKLE:
+      Serial.println("Twinkle"); break;
+    case STARFALL:
+      Serial.println("Starfall"); break;
+  }
+  mode = (mode + 1) % 4;
 }
