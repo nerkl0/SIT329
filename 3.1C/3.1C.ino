@@ -1,15 +1,13 @@
 #include "GPIO.h"
+#include "Blink.h"
 
-const uint32_t MODE_CYCLE = 2000;
+const uint32_t MODE_CYCLE = 1000;
 const uint32_t TWINKLE_FREQ = MODE_CYCLE / 5;
 const uint32_t STARFALL_FREQ = TWINKLE_FREQ * 10;
 const uint32_t DEMO_CYCLE = 5000;
-bool lightState = false;
-uint32_t lastCycle = 0; 
-uint32_t lastDemo = 0; 
 
-enum { START, INVERT, TWINKLE, STARFALL } DemoMode;
-int mode = START;
+uint32_t lastDemoMode = 0;
+uint8_t mode = -1;
 
 GPIO_Pin leds[] = {
   { PORT_A, 6, GPIO_OUTPUT }, // D7
@@ -23,38 +21,12 @@ GPIO_Pin leds[] = {
 const int LED_LENGTH = sizeof(leds)/sizeof(leds[0]);
 const int initial[] = { HIGH, LOW, LOW, HIGH, HIGH, LOW };
 
-Pin_State state[] = {
-  {&leds[0], initial[0]},
-  {&leds[1], initial[1]},
-  {&leds[2], initial[2]},
-  {&leds[3], initial[3]},
-  {&leds[4], initial[4]},
-  {&leds[5], initial[5]},
-};
+Pin_State state[LED_LENGTH];
 
-void invertLights(){
+void setInitialState(){
   for (int i = 0; i < LED_LENGTH; i++){
-    state[i].state = !state[i].state;
-  }
-}
-
-void resetState(){
-  for (int i = 0; i < LED_LENGTH; i++){
+    state[i].pin = &leds[i];
     state[i].state = initial[i];
-  }
-}
-
-void toggleAll(bool power){
-  for (int i = 0; i < LED_LENGTH; i++){
-    state[i].state = power;
-  }
-}
-
-void setMode(uint32_t freq){
-  if (millis() - lastCycle >= (freq / 2)){
-    lastCycle = millis();
-    lightState = !lightState;
-    toggleAll(lightState);
   }
 }
 
@@ -65,23 +37,35 @@ void setup() {
   if (!SetupPort_GPIO(leds, LED_LENGTH)) {
     Serial.println("Error configuring LED pins");
     Serial.flush();
-    while (1); // don't let program intiate 
+    while (1);
   }
-  Display_GPIO(state, LED_LENGTH);
+  setInitialState(); 
 }
 
 void loop() {
+  if ((millis() - lastDemoMode) >= DEMO_CYCLE){
+    mode = (mode + 1) % 5;
+    lastDemoMode = millis();
 
-
-  switch(mode){
-    case START:
-      Serial.println("Starting"); break;
-    case INVERT:
-      Serial.println("Invert"); break;
-    case TWINKLE:
-      Serial.println("Twinkle"); break;
-    case STARFALL:
-      Serial.println("Starfall"); break;
+    switch(mode){
+      case START:
+        Serial.println("Default"); 
+        setInitialState(); break;
+      case INVERT:
+        Serial.println("Invert");
+        invertLights(); break;
+      case TWINKLE:
+        Serial.println("Twinkle"); break;
+      case STARFALL:
+        Serial.println("Starfall"); break;
+      case STARRACE:
+        Serial.println("Star Race"); break;
+    }
   }
-  mode = (mode + 1) % 4;
+  
+  if (mode == TWINKLE) blink(TWINKLE_FREQ);
+  if (mode == STARFALL) blink(STARFALL_FREQ);
+  //if (mode == STARRACE) randomiseMode();
+
+  Display_GPIO(state, LED_LENGTH);
 }
