@@ -8,6 +8,11 @@
 typedef enum { PORT_A, PORT_B } GPIO_Port;
 typedef enum { GPIO_INPUT, GPIO_OUTPUT } Mode;
 
+/*
+  GPIO_Pin struct that takes port A or B
+  Pin: Port pin integer 
+  Mode: INPUT / OUTPUT
+*/
 typedef struct { 
   GPIO_Port port; 
   uint8_t pin;
