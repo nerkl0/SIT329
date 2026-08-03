@@ -1,6 +1,6 @@
 #include "Blink.h"
 
-static uint32_t lastCycle = 0; // holds the tick counter value assigned by millis() to track cycle length
+static unsigned long lastCycle = 0; // holds the tick counter value assigned by millis() to track cycle length
 static bool lightState = false; // indicates when lights need to be switched ON/OFF
 
 // Values assigned to the frequency argument for blink() within randomise()

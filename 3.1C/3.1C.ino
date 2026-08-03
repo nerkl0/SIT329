@@ -6,7 +6,7 @@ const uint32_t TWINKLE_FREQ = FREQ / 5; // 5Hz
 const uint32_t STARFALL_FREQ = TWINKLE_FREQ * 10; // 0.5Hz
 const uint32_t DEMO_CYCLE = 5000; //
 
-uint32_t lastDemoMode = 0; // holds a tick counter value from the start of a demo cycle
+unsigned long lastDemoMode = 0; // holds a tick counter value from the start of a demo cycle
 uint8_t mode = -1; // mode will be updated to 0 (Default) on first iteration of loop()
 
 GPIO_Pin leds[] = {
