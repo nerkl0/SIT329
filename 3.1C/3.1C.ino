@@ -61,8 +61,6 @@ void loop() {
         Serial.println("Twinkle"); break;
       case STARFALL:
         Serial.println("Starfall"); break;
-      case STARRACE:
-        Serial.println("Star Race"); break;
     }
   }
   
