@@ -19,7 +19,7 @@ typedef struct {
   Mode mode; 
 } GPIO_Pin;
 
-
+// Takes a pointer to a pin and holds a state for it
 typedef struct {
   GPIO_Pin *pin; 
   int state;

@@ -31,6 +31,8 @@ bool Config_GPIO(GPIO_Pin *p){
   return true;
 }
 
+// SetupPort_GPIO calls the Config_GPIO to initialise multiple pins with a single function call
+// Handles a false Config_GPIO return by also returning false
 bool SetupPort_GPIO(GPIO_Pin *arr, int len){
   for (int i = 0; i < len; i++){
     if(!Config_GPIO(&arr[i])) 
@@ -39,6 +41,11 @@ bool SetupPort_GPIO(GPIO_Pin *arr, int len){
   return true;
 }
 
+/*
+  Display_GPIO allows triggering of multiple pins with a single function call. 
+  Loops through the Pin_State array calling Write_GPIO
+  Handles a false Write_GPIO call by also returning false
+*/
 bool Display_GPIO(Pin_State *st, int len){
 for (int i = 0; i < len; i++)
     if (!Write_GPIO(st[i].pin, st[i].state)) 
@@ -66,6 +73,7 @@ bool Write_GPIO(GPIO_Pin *p, bool state){
   }
   return true;
 }
+
 /*
   Read_GPIO returns the input state of the pin. 
   Parameter: the address of GPIO_PIN *p
