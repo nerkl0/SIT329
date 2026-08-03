@@ -4,7 +4,10 @@
 const uint32_t FREQ = 1000; // Length of one full cycle
 const uint32_t TWINKLE_FREQ = FREQ / 5; // 5Hz 
 const uint32_t STARFALL_FREQ = TWINKLE_FREQ * 10; // 0.5Hz
-const uint32_t DEMO_CYCLE = 5000; //
+const uint32_t DEMO_CYCLE = 5000; // Cycle length for all modes excluding Starrace
+const uint32_t STARRACE_CYCLE = 40000; // Standalone cycle for Starrace 
+
+uint32_t currentCycle = DEMO_CYCLE; // to track the current cycle length. Switches in main timer in loop
 
 unsigned long lastDemoMode = 0; // holds a tick counter value from the start of a demo cycle
 uint8_t mode = -1; // mode will be updated to 0 (Default) on first iteration of loop()
@@ -43,30 +46,34 @@ void setup() {
 }
 
 void loop() {
-  // mode = STARRACE; // <- commented out because the cycle doesn't work with the other
-  // set cycles. To enable STARRACE, uncomment the mode and if block below. 
-  // and comment out "mode = (mode + 1) % 5;"
-  if ((millis() - lastDemoMode) >= DEMO_CYCLE){
+  if ((millis() - lastDemoMode) >= currentCycle){
     mode = (mode + 1) % 5;
     lastDemoMode = millis();
+    // assign the correct current cycle duration depending on mode
+    currentCycle = (mode == STARRACE) ? STARRACE_CYCLE : DEMO_CYCLE;
 
     switch(mode){
       case START:
-        Serial.println("Default"); 
+        Serial.println("Mode: Default"); 
         randomiseState(); break;
       case INVERT:
-        Serial.println("Invert");
+        Serial.println("Mode: Invert");
         invert(); break;
       case TWINKLE:
-        Serial.println("Twinkle"); break;
+        Serial.println("Mode: Twinkle"); 
+        resetBlink(); break;
       case STARFALL:
-        Serial.println("Starfall"); break;
+        Serial.println("Mode: Starfall");
+        resetBlink(); break;
+      case STARRACE:
+        Serial.println("Mode: Star Race");
+        resetRandomise(); break;
     }
   }
   
   if (mode == TWINKLE) blink(TWINKLE_FREQ);
   if (mode == STARFALL) blink(STARFALL_FREQ);
-  // if (mode == STARRACE) randomise();
+  if (mode == STARRACE) randomise();
 
   Display_GPIO(state, LED_LENGTH);
 }
