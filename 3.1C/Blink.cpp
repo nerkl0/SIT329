@@ -63,20 +63,22 @@ void randomise(){
   lastCycle = millis();
   lightState = !lightState;
   
+  // Assign new random state values for each pin after one blink
   if (lightState){
-     // Randomise LED state
      randomiseState();
   } else {
     toggleAll(false); // At the end of each blink step, switch all LEDs off / resetting the state
 
-    // increment count, make sure it's still within the number of steps per blink
+    // increment count, each cycle to have BLINKS_PER_STEP blinks
     if (++count >= BLINKS_PER_STEP){
+      Serial.println("=========="); 
+      Serial.println("Next cycle/step");
       count = 0;
       step += arrayDir; // incremement/decrement randomFreq index
        // if array bounds have been hit, flip the sign +/- so the array traverses in the opposite direction
       if (step == 0 || step == FREQ_LEN - 1)
         arrayDir = -arrayDir;
-      Serial.print("Changing frequency: ");Serial.println(randomFreq[step]);
+      Serial.print("Freq: ");Serial.println(randomFreq[step]);
     }
   }
 }
