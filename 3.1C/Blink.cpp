@@ -63,7 +63,7 @@ void randomise(){
   lastCycle = millis();
   lightState = !lightState;
   
-  // Assign new random state values for each pin after one blink
+  // Assign new random state values for each pin after one blink has finished
   if (lightState){
      randomiseState();
   } else {
@@ -71,14 +71,33 @@ void randomise(){
 
     // increment count, each cycle to have BLINKS_PER_STEP blinks
     if (++count >= BLINKS_PER_STEP){
-      Serial.println("=========="); 
-      Serial.println("Next cycle/step");
+      Serial.println(""); Serial.print("Randomise Step "); Serial.println(step+1);
       count = 0;
       step += arrayDir; // incremement/decrement randomFreq index
        // if array bounds have been hit, flip the sign +/- so the array traverses in the opposite direction
       if (step == 0 || step == FREQ_LEN - 1)
         arrayDir = -arrayDir;
       Serial.print("Freq: ");Serial.println(randomFreq[step]);
+      Serial.println("==========");
     }
   }
+}
+
+/*
+  Resets static timers, toggles all lights to off, light state off
+  Allows each cycle to start from the same base state
+    - randomise() variables step, count, arrayDir reset.
+*/
+void resetBlink(){ 
+  lastCycle = millis();
+  lightState = false;
+  toggleAll(false);
+}
+void resetRandomise(){
+  lastCycle = millis();
+  lightState = false;
+  step = 0;
+  count = 0;
+  arrayDir = 1;
+  toggleAll(false);
 }

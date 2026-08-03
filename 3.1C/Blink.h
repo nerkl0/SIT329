@@ -15,7 +15,9 @@ void setInitialState();
 void invert();
 void toggleAll(bool power);
 void blink(uint32_t freq);
+void resetBlink();
 void randomise();
 void randomiseState();
+void resetRandomise();
 
 #endif
